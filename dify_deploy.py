@@ -23,11 +23,11 @@ import requests
 
 
 def load_config():
-    """加载配置, 优先 doc/dify_deploy_config.json"""
-    config_path = Path(__file__).resolve().parent.parent / "doc" / "dify_deploy_config.json"
+    """加载配置, 优先 dify_deploy_config.json"""
+    config_path = Path(__file__).resolve().parent / "dify_deploy_config.json"
     if not config_path.exists():
         print(f"[ERROR] 配置文件不存在: {config_path}")
-        print("请复制 doc/dify_deploy_config.json 并填入你的 Dify 域名、邮箱和密码")
+        print("请复制 dify_deploy_config.example.json 为 dify_deploy_config.json 并填入你的 Dify 域名、邮箱和密码")
         sys.exit(1)
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)

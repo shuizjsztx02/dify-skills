@@ -20,23 +20,23 @@ Supports self-hosted Dify instances (tested on v0.6+ DSL format).
 1. Clone this repo into your project directory (or add as a submodule):
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/dify-deploy-skill.git
+   git clone https://github.com/shuizjsztx02/dify-skills.git
    ```
 
    Or copy the files directly into your project root. The key files are:
    ```
    .claude/commands/dify-deploy.md
    .claude/commands/dify-export.md
-   script_temp/dify_deploy.py
+   dify_deploy.py
    ```
 
 2. Create your config file from the template:
 
    ```bash
-   cp doc/dify_deploy_config.example.json doc/dify_deploy_config.json
+   cp dify_deploy_config.example.json dify_deploy_config.json
    ```
 
-3. Edit `doc/dify_deploy_config.json` with your Dify credentials:
+3. Edit `dify_deploy_config.json` with your Dify credentials:
 
    ```json
    {
@@ -90,15 +90,15 @@ You can also run the script without Claude Code:
 
 ```bash
 # Deploy
-python script_temp/dify_deploy.py deploy <yml_path> <dify_url> [--version <version>]
+python dify_deploy.py deploy <yml_path> <dify_url> [--version <version>]
 
 # Export
-python script_temp/dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
+python dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
 ```
 
 ## How It Works
 
-1. Reads credentials from `doc/dify_deploy_config.json`
+1. Reads credentials from `dify_deploy_config.json`
 2. Logs into Dify via `/console/api/login` (supports Dify v1.11+ base64 password encoding)
 3. For **deploy**: calls `POST /console/api/apps/imports` then `POST /console/api/apps/{app_id}/workflows/publish`
 4. For **export**: calls `GET /console/api/apps/{app_id}/export`

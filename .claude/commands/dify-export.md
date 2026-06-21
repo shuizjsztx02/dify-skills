@@ -28,15 +28,15 @@ allowed-tools:
 1. 解析用户输入，提取 dify URL、--output 路径和可选的 --force / --no-secret 参数
 2. 执行导出脚本:
    ```
-   python script_temp/dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
+   python dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
    ```
 3. 检查输出，确认导出是否成功
 4. 如果失败，分析错误信息并给出修复建议
 
 ## 注意事项
 
-- 配置文件位于 `doc/dify_deploy_config.json`，包含 Dify 域名、邮箱和密码
-- 如果提示配置文件不存在或凭据错误，提醒用户检查 `doc/dify_deploy_config.json`
+- 配置文件位于 `dify_deploy_config.json`，包含 Dify 域名、邮箱和密码
+- 如果提示配置文件不存在或凭据错误，提醒用户检查 `dify_deploy_config.json`
 - 默认不覆盖已存在的文件，需要加 `--force` 参数才会覆盖
 - 导出的 YML 包含完整的智能体配置（workflow、节点、环境变量等）
 - 如果输出路径的父目录不存在，会自动创建
