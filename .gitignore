@@ -1,0 +1,19 @@
+# 真实配置文件（包含密码，不应提交）
+doc/dify_deploy_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
