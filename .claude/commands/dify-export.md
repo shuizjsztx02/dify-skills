@@ -1,5 +1,5 @@
 ---
-description: "从 Dify 智能体导出 YML 到本地"
+description: "从 Dify 智能体导出 YML 到本地。用法: <URL> --output <路径> [--force] [--no-secret] 或 <文件名> [--force]"
 allowed-tools:
   - Bash(python *)
   - Read
@@ -11,32 +11,28 @@ allowed-tools:
 
 ## 使用方式
 
-用户输入格式: `<dify智能体URL> --output <本地保存路径> [--force] [--no-secret]`
+方式 1 - 首次使用完整 URL（自动保存映射）:
+/dify-export <URL> --output <路径> [--force] [--no-secret]
 
-示例:
-- `/project:dify-export https://dify.example.com/app/xxxxxxxx/workflow --output path/to/agent.yml`
-- `/project:dify-export https://dify.example.com/app/xxxxxxxx/workflow --output path/to/agent.yml --force`
-- `/project:dify-export https://dify.example.com/app/xxxxxxxx/workflow -o path/to/agent.yml -f`
+方式 2 - 后续使用文件名（自动查找映射）:
+/dify-export <文件名> [--force] [--no-secret]
 
-参数说明:
-- `--output` / `-o`: 必填，本地保存路径
-- `--force` / `-f`: 可选，目标文件已存在时强制覆盖（默认会报错）
-- `--no-secret`: 可选，导出时不包含密钥类环境变量（默认包含）
+参数:
+- URL: Dify 应用 URL，如 http://3.19.168.125/app/<UUID>/workflow
+- 文件名: 已映射的文件名，如 agent.yml
+- --output / -o: 使用 URL 时必填，使用文件名时自动用文件名作为输出路径
+- --force / -f: 覆盖已存在的文件
+- --no-secret: 不包含密钥环境变量
 
 ## 执行步骤
 
-1. 解析用户输入，提取 dify URL、--output 路径和可选的 --force / --no-secret 参数
-2. 执行导出脚本:
-   ```
-   python dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
-   ```
-3. 检查输出，确认导出是否成功
-4. 如果失败，分析错误信息并给出修复建议
+1. 解析用户输入
+2. 执行: python dify_deploy.py export $ARGUMENTS
+3. 检查结果
 
 ## 注意事项
 
-- 配置文件位于 `dify_deploy_config.json`，包含 Dify 域名、邮箱和密码
-- 如果提示配置文件不存在或凭据错误，提醒用户检查 `dify_deploy_config.json`
-- 默认不覆盖已存在的文件，需要加 `--force` 参数才会覆盖
-- 导出的 YML 包含完整的智能体配置（workflow、节点、环境变量等）
-- 如果输出路径的父目录不存在，会自动创建
+- 配置文件位于 dify_deploy_config.json
+- 映射关系保存在 dify_app_mapping.json 中
+- 查看映射: python dify_deploy.py list
+- 删除映射: python dify_deploy.py unbind <文件名>
