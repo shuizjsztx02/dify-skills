@@ -1,7 +1,7 @@
 ---
-description: "同步 Web App 名称到应用名称"
+description: "同步 Web App 名称到应用名称（支持多服务器）"
 allowed-tools:
-  - Bash(python *)
+  - Bash(dify *)
   - Read
 ---
 
@@ -21,10 +21,15 @@ allowed-tools:
 /project:dify-sync-name agent.yml
 ```
 
+### 指定服务器
+```
+/project:dify-sync-name agent.yml --server work
+```
+
 ## 执行步骤
 
 1. 解析用户输入，提取 dify URL 或文件名
-2. 如果是文件名，从映射中查找 base_url 和 app_id
+2. 如果是文件名，从映射中查找服务器和 app_id
 3. 登录 Dify
 4. 获取应用信息（应用名称）
 5. 获取 Web App 配置（Web App 名称）
@@ -36,4 +41,4 @@ allowed-tools:
 - 该功能会在 deploy 成功后自动执行
 - 也可以手动调用此命令进行同步
 - 需要使用完整 URL 或已映射的文件名
-- 映射关系保存在 `dify_app_mapping.json` 中
+- 映射关系保存在 `~/.dify/mapping.json` 中

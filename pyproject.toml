@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dify-cli"
+version = "1.0.0"
+description = "Dify CLI - 命令行工具 for Dify（支持多服务器）"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.scripts]
+dify = "dify_cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

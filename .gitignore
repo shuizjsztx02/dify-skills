@@ -1,15 +1,12 @@
-# 真实配置文件（包含密码，不应提交）
-dify_deploy_config.json
-
-# 映射文件（包含服务器信息，可选提交）
-dify_app_mapping.json
-
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+*.egg-info/
 .venv/
 venv/
+build/
+dist/
 
 # IDE
 .idea/

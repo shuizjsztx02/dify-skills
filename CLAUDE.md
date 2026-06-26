@@ -4,73 +4,140 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Code skill for deploying and exporting [Dify](https://dify.ai) workflows via YAML. Supports self-hosted Dify instances (v0.6+ DSL format, tested through v1.11+).
+**Dify CLI** — 命令行工具 for [Dify](https://dify.ai)，支持多服务器配置，可在任意项目文件夹使用。
+
+## Installation
+
+One-time setup (works across all project folders):
+
+```bash
+git clone https://github.com/shuizjsztx02/dify-skills.git
+cd dify-skills
+pip install -e .
+dify init   # Interactive setup for server credentials
+```
 
 ## Commands
 
-### Deploy (local YAML → Dify)
+### Server Management
+
 ```bash
-# 首次使用完整 URL（自动保存映射）
-python dify_deploy.py deploy <yml_path> <dify_url> [--version <version_name>]
-# 后续使用文件名（自动查找映射）
-python dify_deploy.py deploy <yml_path>
+# Interactive configuration (add multiple servers)
+dify init
+
+# List configured servers
+dify servers
+
+# Set default server
+dify servers --set-default work
+
+# Remove a server
+dify servers --remove test
 ```
+
+### Deploy (local YAML → Dify)
+
+```bash
+# First time with full URL (auto-saves mapping)
+dify deploy <yml_path> <dify_url> [--server <name>] [--version <version_name>]
+
+# Subsequent uses with filename (auto-lookup mapping)
+dify deploy <yml_path>
+```
+
 Or via Claude Code slash command: `/project:dify-deploy path/to/agent.yml https://dify.example.com/app/<UUID>/workflow`
-Or simplified: `/project:dify-deploy agent.yml` (after initial mapping)
 
 ### Export (Dify → local YAML)
+
 ```bash
-# 首次使用完整 URL（自动保存映射）
-python dify_deploy.py export <dify_url> --output <output_path> [--force] [--no-secret]
-# 后续使用文件名（自动查找映射）
-python dify_deploy.py export <filename>
+# First time with full URL (auto-saves mapping)
+dify export <dify_url> --output <output_path> [--server <name>] [--force] [--no-secret]
+
+# Subsequent uses with filename (auto-lookup mapping)
+dify export <filename>
 ```
+
 Or via Claude Code slash command: `/project:dify-export https://dify.example.com/app/<UUID>/workflow --output path/to/output.yml`
-Or simplified: `/project:dify-export agent.yml` (after initial mapping)
 
 ### Mapping Management
+
 ```bash
-python dify_deploy.py list              # 列出所有映射
-python dify_deploy.py unbind <filename> # 删除映射
+dify list              # List all mappings
+dify unbind <filename> # Delete a mapping
 ```
 
 ### Sync Web App Name
-```bash
-python dify_deploy.py sync-name <dify_url_or_filename>
-```
-Or via Claude Code slash command: `/project:dify-sync-name agent.yml`
 
-自动检查并同步 Web App 名称到应用名称，在 deploy 成功后也会自动执行。
-
-### Setup
 ```bash
-cp dify_deploy_config.example.json dify_deploy_config.json
-# Edit with: base_url, email, password
-pip install requests
+dify sync-name <dify_url_or_filename> [--server <name>]
 ```
+
+Auto-syncs Web App name to match the application name. Also runs automatically after deploy.
 
 ## Architecture
 
-Single-file Python script (`dify_deploy.py`) with five subcommands. No build step, no tests.
+Modular package structure under `src/dify_cli/`:
+
+```
+src/dify_cli/
+├── __init__.py       # Package init
+├── cli.py            # Main entry point
+├── config.py         # Configuration management (~/.dify/config.json)
+├── auth.py           # Authentication
+├── utils.py          # Utility functions
+├── mapping.py        # Mapping management (~/.dify/mapping.json)
+└── commands/         # Subcommands
+    ├── init_cmd.py
+    ├── servers_cmd.py
+    ├── deploy_cmd.py
+    ├── export_cmd.py
+    ├── list_cmd.py
+    ├── unbind_cmd.py
+    └── sync_name_cmd.py
+```
+
+**Global Configuration:**
+- Config: `~/.dify/config.json` — server credentials (supports multiple servers)
+- Mapping: `~/.dify/mapping.json` — filename → (server, app_id) mappings
+
+**Multi-server support:**
+- Config stores multiple servers with a default_server setting
+- Each mapping entry includes the server name
+- URL matching automatically identifies the correct server
+- `--server` flag can override automatic selection
 
 **Flow:**
-1. `load_config()` reads credentials from `dify_deploy_config.json` (sibling to script)
-2. `login()` POSTs to `/console/api/login` with base64-encoded password (Dify v1.11+ format), extracts `access_token` from cookies or response body
-3. **deploy** path: `import_yml()` → `POST /console/api/apps/imports` (mode: yaml-content), then `publish()` → `POST /console/api/apps/{app_id}/workflows/publish`, then `sync_name()` to auto-sync Web App name
-4. **export** path: `export_yml()` → `GET /console/api/apps/{app_id}/export`, writes raw YAML string to disk
-5. **sync-name** path: `get_app_info()` → `GET /console/api/apps/{app_id}` (site config is embedded in `site` field), then `update_site_name()` → `POST /console/api/apps/{app_id}/site` with full site config if names differ
+1. `load_config()` reads from `~/.dify/config.json`
+2. `login_with_server()` authenticates with selected server
+3. **deploy** path: `import_yml()` → `publish()` → `sync_name()`
+4. **export** path: `export_yml()` → write YAML to disk
+5. **sync-name** path: `get_app_info()` → `update_site_name()` if needed
 
-**Mapping feature:** `dify_app_mapping.json` stores filename → (base_url, app_id) mappings. Deploy/export commands accept either full URL or filename. When given a URL, they auto-save the mapping after success. When given a filename, they look up the mapping via `lookup_mapping()`.
+## Claude Code Commands
 
-**URL parsing:** `extract_app_id()` pulls the UUID from `/app/<UUID>/workflow` style URLs; `extract_base_url()` extracts scheme+host. Both `sys.exit(1)` on failure. `is_url()` determines whether input is a URL or filename.
-
-**Claude Code commands** (`.claude/commands/`): `dify-deploy.md`, `dify-export.md`, `dify-list.md`, `dify-unbind.md`, and `dify-sync-name.md` are thin wrappers that parse user arguments and invoke `python dify_deploy.py` with the right subcommand. They declare `allowed-tools: Bash(python *), Read`.
+Available in `.claude/commands/`:
+- `dify-init.md` — Interactive server configuration
+- `dify-servers.md` — Manage server list
+- `dify-deploy.md` — Deploy YAML to Dify
+- `dify-export.md` — Export YAML from Dify
+- `dify-list.md` — List all mappings
+- `dify-unbind.md` — Delete a mapping
+- `dify-sync-name.md` — Sync Web App name
 
 ## Conventions
 
 - All console output is in Chinese (error messages, status lines, etc.)
-- Windows UTF-8 stdout fix at script top: `sys.stdout.reconfigure(encoding="utf-8")`
+- Windows UTF-8 stdout fix at script top
 - Status prefixes: `[INFO]`, `[OK]`, `[ERROR]`
 - Dify import API uses overwrite mode — replaces the entire target app config
 - Export defaults to including secret env vars; `--no-secret` excludes them
 - Export refuses to overwrite existing files unless `--force` is passed
+
+## Extending
+
+To add new commands:
+
+1. Create `src/dify_cli/commands/new_cmd.py`
+2. Implement the command function
+3. Register in `src/dify_cli/cli.py`
+4. Add Claude Code command in `.claude/commands/`

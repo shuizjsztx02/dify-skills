@@ -1,7 +1,7 @@
 ---
 description: "删除 YML 文件与 Dify app 的映射关系"
 allowed-tools:
-  - Bash(python *)
+  - Bash(dify *)
   - Read
 ---
 
@@ -23,8 +23,8 @@ allowed-tools:
 
 1. 解析用户输入，提取要删除映射的文件名
 2. 执行删除映射命令:
-   ```
-   python dify_deploy.py unbind <filename>
+   ```bash
+   dify unbind <filename>
    ```
 3. 确认映射已成功删除
 
