@@ -34,7 +34,7 @@ def cmd_features(args):
         },
         {
             "name": "list",
-            "description": "列出所有映射关系（文件名 ↔ Dify 应用）",
+            "description": "列出所有映射关系（文件名 <-> Dify 应用）",
             "usage": "dify list",
             "category": "映射管理"
         },
