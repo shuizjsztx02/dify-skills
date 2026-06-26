@@ -12,6 +12,7 @@ from .commands.deploy_cmd import cmd_deploy
 from .commands.export_cmd import cmd_export
 from .commands.features_cmd import cmd_features
 from .commands.init_cmd import cmd_init
+from .commands.install_cmd import cmd_install
 from .commands.list_cmd import cmd_list
 from .commands.servers_cmd import cmd_servers
 from .commands.sync_name_cmd import cmd_sync_name
@@ -90,6 +91,11 @@ def main():
     p_test.add_argument("--server", "-s", help="指定服务器名称")
     p_test.add_argument("--verbose", "-v", action="store_true", help="显示详细输出")
     p_test.set_defaults(func=cmd_test)
+
+    # install
+    p_install = sub.add_parser("install", help="安装/卸载 Claude Code slash commands")
+    p_install.add_argument("--uninstall", action="store_true", help="卸载 Claude Code commands")
+    p_install.set_defaults(func=cmd_install)
 
     args = parser.parse_args()
     args.func(args)

@@ -4,11 +4,16 @@ import json
 import sys
 
 from ..config import get_config_path, load_config, save_config
+from ..utils import install_claude_commands
 
 
 def cmd_init(args):
     """交互式初始化配置"""
     config_path = get_config_path()
+
+    # 安装 Claude Code commands 到全局目录
+    print("\n[INFO] 安装 Claude Code slash commands...")
+    install_claude_commands()
 
     if config_path.exists():
         with open(config_path, "r", encoding="utf-8") as f:
