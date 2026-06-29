@@ -221,7 +221,7 @@ def parse_custom_inputs(input_str: str) -> dict:
 
 
 def generate_report(results: list[dict], yml_path: str, output_path: str = None) -> str:
-    """生成测试报告"""
+    """生成 Markdown 格式的测试报告"""
     total = len(results)
     success = sum(1 for r in results if not r.get("error"))
     failed = total - success
@@ -232,48 +232,57 @@ def generate_report(results: list[dict], yml_path: str, output_path: str = None)
     total_tokens = sum(r.get("total_tokens", 0) for r in results)
     avg_tokens = total_tokens / total if total > 0 else 0
 
-    report = []
-    report.append("=" * 70)
-    report.append("Dify 工作流测试报告")
-    report.append("=" * 70)
-    report.append("")
-    report.append(f"测试文件：{yml_path}")
-    report.append(f"测试时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    report.append(f"测试数量：{total}")
-    report.append("")
-    report.append("-" * 70)
-    report.append("测试统计")
-    report.append("-" * 70)
-    report.append(f"  成功：{success} ({success/total*100:.1f}%)")
-    report.append(f"  失败：{failed} ({failed/total*100:.1f}%)")
-    report.append(f"  总耗时：{total_time:.2f}s")
-    report.append(f"  平均耗时：{avg_time:.2f}s")
-    report.append(f"  总 Token 消耗：{total_tokens}")
-    report.append(f"  平均 Token 消耗：{avg_tokens:.0f}")
-    report.append("")
+    def pct(n):
+        return f"{n / total * 100:.1f}%" if total > 0 else "0.0%"
 
-    report.append("-" * 70)
-    report.append("详细结果")
-    report.append("-" * 70)
+    def oneline(s: str) -> str:
+        """压缩换行，避免破坏 Markdown 行内结构"""
+        return str(s).replace("\n", " ").replace("\r", " ")
+
+    report = []
+    report.append("# Dify 工作流测试报告")
+    report.append("")
+    report.append(f"- **测试文件**：`{yml_path}`")
+    report.append(f"- **测试时间**：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report.append(f"- **测试数量**：{total}")
+    report.append("")
+    report.append("## 测试统计")
+    report.append("")
+    report.append("| 指标 | 值 |")
+    report.append("| --- | --- |")
+    report.append(f"| 成功 | {success} ({pct(success)}) |")
+    report.append(f"| 失败 | {failed} ({pct(failed)}) |")
+    report.append(f"| 总耗时 | {total_time:.2f}s |")
+    report.append(f"| 平均耗时 | {avg_time:.2f}s |")
+    report.append(f"| 总 Token 消耗 | {total_tokens} |")
+    report.append(f"| 平均 Token 消耗 | {avg_tokens:.0f} |")
+    report.append("")
+    report.append("## 详细结果")
+    report.append("")
 
     for i, r in enumerate(results, 1):
-        status = "✅ 成功" if not r.get("error") else " 失败"
+        status = "✅ 成功" if not r.get("error") else "❌ 失败"
         tokens = r.get("total_tokens", 0)
-        token_info = f", tokens: {tokens}" if tokens else ""
-        report.append(f"\n【测试 #{i}】{status} (耗时：{r.get('duration', 0):.2f}s{token_info})")
-        report.append(f"  任务 ID: {r.get('task_id', 'N/A')}")
-        report.append(f"  输入：{json.dumps(r.get('inputs', {}), ensure_ascii=False)[:100]}")
+        report.append(f"### 测试 #{i} {status}")
+        report.append("")
+        report.append(f"- **耗时**：{r.get('duration', 0):.2f}s")
+        if tokens:
+            report.append(f"- **Token**：{tokens}")
+        report.append(f"- **任务 ID**：`{r.get('task_id', 'N/A')}`")
+        inputs_preview = oneline(json.dumps(r.get("inputs", {}), ensure_ascii=False))[:100]
+        report.append(f"- **输入**：`{inputs_preview}`")
 
         if r.get("error"):
-            report.append(f"  错误：{r.get('message', '未知错误')[:200]}")
+            err_preview = oneline(r.get("message", "未知错误"))[:200]
+            report.append(f"- **错误**：{err_preview}")
         else:
             outputs = r.get("outputs", {})
-            for key, value in outputs.items():
-                preview = str(value)[:150] + "..." if len(str(value)) > 150 else str(value)
-                report.append(f"  输出 [{key}]: {preview}")
-
-    report.append("")
-    report.append("=" * 70)
+            if outputs:
+                report.append("- **输出**：")
+                for key, value in outputs.items():
+                    preview = oneline(value)[:150]
+                    report.append(f"  - `{key}`：{preview}")
+        report.append("")
 
     report_text = "\n".join(report)
 

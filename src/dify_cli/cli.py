@@ -11,6 +11,7 @@ from .commands.check_cmd import cmd_check
 from .commands.deploy_cmd import cmd_deploy
 from .commands.export_cmd import cmd_export
 from .commands.features_cmd import cmd_features
+from .commands.getmsg_cmd import cmd_getmsg
 from .commands.init_cmd import cmd_init
 from .commands.install_cmd import cmd_install
 from .commands.list_cmd import cmd_list
@@ -70,6 +71,12 @@ def main():
     p_sync.add_argument("dify_url", help="Dify URL 或已映射的文件名")
     p_sync.add_argument("--server", "-s", help="指定服务器名称")
     p_sync.set_defaults(func=cmd_sync_name)
+
+    # get-msg
+    p_getmsg = sub.add_parser("get-msg", help="查询 app-id / Web App 链接 / API Key（无则创建）")
+    p_getmsg.add_argument("dify_url", help="Dify URL 或已映射的文件名")
+    p_getmsg.add_argument("--server", "-s", help="指定服务器名称")
+    p_getmsg.set_defaults(func=cmd_getmsg)
 
     # check
     p_check = sub.add_parser("check", help="校验 YAML 语法和 Dify DSL 结构")

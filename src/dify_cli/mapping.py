@@ -24,14 +24,15 @@ def save_mapping(mapping: dict):
 
 
 def get_mapping_key(yml_path: str) -> str:
-    """生成映射的 key: 项目目录名/文件名
+    """生成映射的 key: 文件所在目录名/文件名
 
-    这样不同项目文件夹中的同名文件不会冲突
+    用 yml 文件实际所在的目录名（而非命令运行时的 cwd），
+    这样在 A 目录操作 B 目录的文件时，映射也能正确关联到 B 目录。
     例如:
     - D:/project-a/agent.yml -> project-a/agent.yml
     - D:/project-b/agent.yml -> project-b/agent.yml
     """
-    project_dir = Path.cwd().name  # 当前工作目录名
+    project_dir = Path(yml_path).resolve().parent.name
     yml_name = Path(yml_path).name
     return f"{project_dir}/{yml_name}"
 
@@ -63,7 +64,7 @@ def save_to_mapping(yml_path: str, server_name: str, app_id: str):
     mapping[project_key] = {
         "server": server_name,
         "app_id": app_id,
-        "cwd": str(Path.cwd()),  # 记录完整路径，便于调试
+        "file_dir": str(Path(yml_path).resolve().parent),  # 文件实际所在目录，便于调试
         "last_used": datetime.now().isoformat(timespec="seconds")
     }
     save_mapping(mapping)
@@ -85,9 +86,9 @@ def list_mappings() -> list[tuple[str, dict]]:
     for key, info in sorted(mapping.items()):
         server = info.get("server", "N/A")
         server_url = servers.get(server, {}).get("base_url", "N/A")
-        cwd = info.get("cwd", "N/A")
+        file_dir = info.get("file_dir") or info.get("cwd", "N/A")
         print(f"{key}")
-        print(f"  项目路径: {cwd}")
+        print(f"  项目路径: {file_dir}")
         print(f"  服务器:   {server} ({server_url})")
         print(f"  App ID:   {info.get('app_id', 'N/A')}")
         print(f"  最后使用: {info.get('last_used', 'N/A')}")
