@@ -69,6 +69,12 @@ def cmd_features(args):
             "category": "测试"
         },
         {
+            "name": "versions",
+            "description": "查询工作流版本历史（默认最新 10 条，含版本名和说明）",
+            "usage": "dify versions <dify_url> [--limit <n>] [--server <name>]",
+            "category": "查询"
+        },
+        {
             "name": "install",
             "description": "安装/卸载 Claude Code slash commands 到全局目录",
             "usage": "dify install [--uninstall]",
@@ -107,6 +113,7 @@ def cmd_features(args):
         ("/project:dify-unbind", "删除映射"),
         ("/project:dify-sync-name", "同步 Web App 名称"),
         ("/project:dify-get-msg", "查询 app-id / Web App 链接 / API Key"),
+        ("/project:dify-versions", "查询工作流版本历史"),
         ("/project:dify-check-yml", "校验 YAML 文件和 DSL 结构"),
         ("/project:dify-test", "自动测试工作流"),
         ("/project:dify-features", "列出所有命令功能"),

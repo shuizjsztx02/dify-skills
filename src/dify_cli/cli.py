@@ -14,6 +14,7 @@ from .commands.features_cmd import cmd_features
 from .commands.getmsg_cmd import cmd_getmsg
 from .commands.init_cmd import cmd_init
 from .commands.install_cmd import cmd_install
+from .commands.versions_cmd import cmd_versions
 from .commands.list_cmd import cmd_list
 from .commands.servers_cmd import cmd_servers
 from .commands.sync_name_cmd import cmd_sync_name
@@ -98,6 +99,13 @@ def main():
     p_test.add_argument("--server", "-s", help="指定服务器名称")
     p_test.add_argument("--verbose", "-v", action="store_true", help="显示详细输出")
     p_test.set_defaults(func=cmd_test)
+
+    # versions
+    p_versions = sub.add_parser("versions", help="查询工作流版本历史（默认最新 10 条）")
+    p_versions.add_argument("dify_url", help="Dify URL 或已映射的文件名")
+    p_versions.add_argument("--limit", "-n", type=int, help="显示条数（默认 10）")
+    p_versions.add_argument("--server", "-s", help="指定服务器名称")
+    p_versions.set_defaults(func=cmd_versions)
 
     # install
     p_install = sub.add_parser("install", help="安装/卸载 Claude Code slash commands")
