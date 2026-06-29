@@ -10,8 +10,10 @@
 - **部署发布** — 导入本地 YAML 到 Dify 并发布
 - **导出备份** — 从 Dify 导出 YAML 到本地
 - **名称同步** — 自动同步 Web App 名称与应用名称
+- **应用查询** — 查询 app-id、Web App 链接、API Key（无则自动创建）
+- **版本历史** — 查询工作流版本历史（版本名、说明、发布时间）
 - **YAML 校验** — 检查 YAML 语法和 Dify DSL 结构完整性
-- **工作流测试** — 调用工作流并生成测试报告，支持批量测试和 Token 统计
+- **工作流测试** — 调用工作流并生成 Markdown 测试报告，支持批量测试和 Token 统计
 - **Claude Code 集成** — 全局 slash commands，任意项目中使用
 
 ## Prerequisites
@@ -162,6 +164,39 @@ dify sync-name https://dify.example.com/app/<APP_UUID>/workflow
 dify sync-name agent.yml
 ```
 
+### Query App Info (get-msg)
+
+```bash
+# Query app-id, Web App link, and API Key
+dify get-msg https://dify.example.com/app/<APP_UUID>/workflow
+
+# Query using mapped filename
+dify get-msg agent.yml
+
+# Specify server
+dify get-msg https://dify.example.com/app/<APP_UUID>/workflow --server work
+```
+
+Output includes:
+- **app-id** — Dify application UUID
+- **Web App 链接** — public share link (mode-aware: workflow/chat/completion)
+- **API Key** — existing keys listed, or auto-created if none exist
+
+### Version History (versions)
+
+```bash
+# Show latest 10 versions (default)
+dify versions https://dify.example.com/app/<APP_UUID>/workflow
+
+# Custom count
+dify versions https://dify.example.com/app/<APP_UUID>/workflow --limit 20
+
+# Using mapped filename
+dify versions agent.yml
+```
+
+Output includes version name, description, publish time, and publisher for each entry.
+
 ### Check YAML
 
 ```bash
@@ -231,6 +266,8 @@ claude
 | `/dify-list` | 列出所有映射 |
 | `/dify-unbind` | 删除映射 |
 | `/dify-sync-name` | 同步 Web App 名称 |
+| `/dify-get-msg` | 查询 app-id / Web App 链接 / API Key |
+| `/dify-versions` | 查询工作流版本历史 |
 | `/dify-check-yml` | 校验 YAML 语法和结构 |
 | `/dify-test` | 自动测试工作流 |
 | `/dify-features` | 列出所有命令功能 |
@@ -256,6 +293,8 @@ src/dify_cli/
     ├── unbind_cmd.py
     ├── sync_name_cmd.py
     ├── check_cmd.py
+    ├── getmsg_cmd.py       # 查询 app-id / Web App 链接 / API Key
+    ├── versions_cmd.py     # 查询工作流版本历史
     ├── test_cmd.py
     └── features_cmd.py
 
