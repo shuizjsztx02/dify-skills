@@ -1,6 +1,7 @@
 """test 命令 - 自动测试 Dify 工作流（支持批量测试和文件输入）"""
 
 import json
+import mimetypes
 import sys
 import time
 from datetime import datetime
@@ -117,8 +118,11 @@ def generate_text_input_batch(name: str, label: str, index: int) -> str:
 def upload_file(base_url: str, api_key: str, file_path: str) -> str:
     """上传文件并返回 file_id"""
     headers = {'Authorization': f'Bearer {api_key}'}
+    # 必须显式指定 MIME 类型：2-tuple 会让 part 的 Content-Type 退化为
+    # application/octet-stream，Dify 会以 unsupported_file_type (415) 拒绝
+    mime, _ = mimetypes.guess_type(file_path)
     with open(file_path, 'rb') as f:
-        files = {'file': (Path(file_path).name, f)}
+        files = {'file': (Path(file_path).name, f, mime or 'application/octet-stream')}
         resp = requests.post(f'{base_url}/v1/files/upload', headers=headers, files=files, timeout=30)
 
     if resp.status_code != 201:

@@ -62,6 +62,12 @@ def cmd_features(args):
             "usage": "dify test <yml_path> [--url <url>] [--input <data>] [--server <name>]",
             "category": "测试"
         },
+        {
+            "name": "install",
+            "description": "安装/卸载 Claude Code slash commands 到全局目录",
+            "usage": "dify install [--uninstall]",
+            "category": "安装"
+        },
     ]
 
     # 按类别分组

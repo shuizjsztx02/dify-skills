@@ -88,13 +88,16 @@ def cmd_deploy(args):
     config = load_config()
     yml_path = Path(args.yml_path)
 
+    # dify_url 可省略：省略时用 yml_path 作为映射查找的 key（README: dify deploy <yml_path>）
+    dify_url = args.dify_url or str(yml_path)
+
     server_name = None
     base_url = None
     app_id = None
 
-    if is_url(args.dify_url):
-        base_url = extract_base_url(args.dify_url)
-        app_id = extract_app_id(args.dify_url)
+    if is_url(dify_url):
+        base_url = extract_base_url(dify_url)
+        app_id = extract_app_id(dify_url)
         server_name = find_server_by_url(config, base_url)
         if not server_name:
             print(f"[ERROR] 未找到匹配的服务器配置: {base_url}")
@@ -102,16 +105,16 @@ def cmd_deploy(args):
             sys.exit(1)
         print(f"[INFO] 匹配到服务器: {server_name}")
     else:
-        result = lookup_mapping(args.dify_url)
+        result = lookup_mapping(dify_url)
         if not result:
-            print(f"[ERROR] 未找到映射: {args.dify_url}")
+            print(f"[ERROR] 未找到映射: {dify_url}")
             print(f"请先使用完整 URL 进行部署: dify deploy {args.yml_path} <DIFY_URL>")
             sys.exit(1)
         server_name = result["server"]
         app_id = result["app_id"]
         _, server_config = get_server_config(config, server_name)
         base_url = server_config["base_url"]
-        print(f"[INFO] 从映射中查找: {args.dify_url} -> {server_name}:{app_id}")
+        print(f"[INFO] 从映射中查找: {dify_url} -> {server_name}:{app_id}")
 
     if args.server:
         server_name, server_config = get_server_config(config, args.server)
@@ -139,7 +142,7 @@ def cmd_deploy(args):
     publish(session, base_url, app_id, args.version)
     sync_name(session, base_url, app_id)
 
-    if is_url(args.dify_url):
+    if is_url(dify_url):
         save_to_mapping(str(yml_path), server_name, app_id)
 
     print(f"\n{'=' * 50}")
