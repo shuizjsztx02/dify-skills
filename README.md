@@ -12,6 +12,8 @@
 - **名称同步** — 自动同步 Web App 名称与应用名称
 - **应用查询** — 查询 app-id、Web App 链接、API Key（无则自动创建）
 - **版本历史** — 查询工作流版本历史（版本名、说明、发布时间）
+- **执行日志** — 查询工作流执行日志（状态、耗时、Token、异常）
+- **差异对比** — 对比本地 YML 与远程应用的节点/连接/变量差异
 - **YAML 校验** — 检查 YAML 语法和 Dify DSL 结构完整性
 - **工作流测试** — 调用工作流并生成 Markdown 测试报告，支持批量测试和 Token 统计
 - **Claude Code 集成** — 全局 slash commands，任意项目中使用
@@ -197,6 +199,36 @@ dify versions agent.yml
 
 Output includes version name, description, publish time, and publisher for each entry.
 
+### Execution Logs (logs)
+
+```bash
+# Show latest 10 execution logs (default)
+dify logs https://dify.example.com/app/<APP_UUID>/workflow
+
+# Custom count
+dify logs https://dify.example.com/app/<APP_UUID>/workflow --limit 20
+
+# Filter by status
+dify logs https://dify.example.com/app/<APP_UUID>/workflow --status failed
+
+# Using mapped filename
+dify logs agent.yml
+```
+
+Output per run: status, elapsed time, token consumption, step count, exception count, version, and trigger user. Summary includes total/avg tokens and failure count. Only supports `workflow` apps.
+
+### Diff (local vs remote)
+
+```bash
+# Compare local YML against remote app
+dify diff path/to/agent.yml https://dify.example.com/app/<APP_UUID>/workflow
+
+# Using mapped filename for remote
+dify diff path/to/agent.yml agent.yml
+```
+
+Reports differences in app metadata, nodes (added/removed/modified), edges, environment variables, and conversation variables.
+
 ### Check YAML
 
 ```bash
@@ -268,7 +300,9 @@ claude
 | `/dify-sync-name` | 同步 Web App 名称 |
 | `/dify-get-msg` | 查询 app-id / Web App 链接 / API Key |
 | `/dify-versions` | 查询工作流版本历史 |
+| `/dify-logs` | 查询工作流执行日志 |
 | `/dify-check-yml` | 校验 YAML 语法和结构 |
+| `/dify-diff` | 对比本地与远程 YML 差异 |
 | `/dify-test` | 自动测试工作流 |
 | `/dify-features` | 列出所有命令功能 |
 | `/dify-install` | 安装/卸载 Claude Code commands |
@@ -295,6 +329,8 @@ src/dify_cli/
     ├── check_cmd.py
     ├── getmsg_cmd.py       # 查询 app-id / Web App 链接 / API Key
     ├── versions_cmd.py     # 查询工作流版本历史
+    ├── logs_cmd.py         # 查询工作流执行日志
+    ├── diff_cmd.py         # 对比本地与远程 YML 差异
     ├── test_cmd.py
     └── features_cmd.py
 

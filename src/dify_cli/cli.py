@@ -9,11 +9,13 @@ if sys.platform == "win32":
 
 from .commands.check_cmd import cmd_check
 from .commands.deploy_cmd import cmd_deploy
+from .commands.diff_cmd import cmd_diff
 from .commands.export_cmd import cmd_export
 from .commands.features_cmd import cmd_features
 from .commands.getmsg_cmd import cmd_getmsg
 from .commands.init_cmd import cmd_init
 from .commands.install_cmd import cmd_install
+from .commands.logs_cmd import cmd_logs
 from .commands.versions_cmd import cmd_versions
 from .commands.list_cmd import cmd_list
 from .commands.servers_cmd import cmd_servers
@@ -106,6 +108,21 @@ def main():
     p_versions.add_argument("--limit", "-n", type=int, help="显示条数（默认 10）")
     p_versions.add_argument("--server", "-s", help="指定服务器名称")
     p_versions.set_defaults(func=cmd_versions)
+
+    # logs
+    p_logs = sub.add_parser("logs", help="查询工作流执行日志（仅 workflow 应用）")
+    p_logs.add_argument("dify_url", help="Dify URL 或已映射的文件名")
+    p_logs.add_argument("--limit", "-n", type=int, help="显示条数（默认 10）")
+    p_logs.add_argument("--status", help="按状态过滤: succeeded/failed/running/stopped")
+    p_logs.add_argument("--server", "-s", help="指定服务器名称")
+    p_logs.set_defaults(func=cmd_logs)
+
+    # diff
+    p_diff = sub.add_parser("diff", help="对比本地 YML 与远程 Dify 应用的差异")
+    p_diff.add_argument("yml_path", help="本地 YML 文件路径")
+    p_diff.add_argument("dify_url", help="Dify URL 或已映射的文件名")
+    p_diff.add_argument("--server", "-s", help="指定服务器名称")
+    p_diff.set_defaults(func=cmd_diff)
 
     # install
     p_install = sub.add_parser("install", help="安装/卸载 Claude Code slash commands")

@@ -35,7 +35,9 @@ def cmd_install(args):
         "/dify-sync-name",
         "/dify-get-msg",
         "/dify-versions",
+        "/dify-logs",
         "/dify-check-yml",
+        "/dify-diff",
         "/dify-test",
         "/dify-features",
     ]

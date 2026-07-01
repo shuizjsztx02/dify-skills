@@ -63,6 +63,12 @@ def cmd_features(args):
             "category": "校验"
         },
         {
+            "name": "diff",
+            "description": "对比本地 YML 与远程 Dify 应用差异（节点/连接/变量）",
+            "usage": "dify diff <yml_path> <dify_url> [--server <name>]",
+            "category": "校验"
+        },
+        {
             "name": "test",
             "description": "自动测试 Dify 工作流（生成测试数据 + 调用 API）",
             "usage": "dify test <yml_path> [--url <url>] [--input <data>] [--server <name>]",
@@ -72,6 +78,12 @@ def cmd_features(args):
             "name": "versions",
             "description": "查询工作流版本历史（默认最新 10 条，含版本名和说明）",
             "usage": "dify versions <dify_url> [--limit <n>] [--server <name>]",
+            "category": "查询"
+        },
+        {
+            "name": "logs",
+            "description": "查询工作流执行日志（含耗时/Token/状态/异常）",
+            "usage": "dify logs <dify_url> [--limit <n>] [--status <status>] [--server <name>]",
             "category": "查询"
         },
         {
@@ -114,7 +126,9 @@ def cmd_features(args):
         ("/project:dify-sync-name", "同步 Web App 名称"),
         ("/project:dify-get-msg", "查询 app-id / Web App 链接 / API Key"),
         ("/project:dify-versions", "查询工作流版本历史"),
+        ("/project:dify-logs", "查询工作流执行日志"),
         ("/project:dify-check-yml", "校验 YAML 文件和 DSL 结构"),
+        ("/project:dify-diff", "对比本地与远程 YML 差异"),
         ("/project:dify-test", "自动测试工作流"),
         ("/project:dify-features", "列出所有命令功能"),
     ]
